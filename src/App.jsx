@@ -310,9 +310,11 @@ const handleBookSalon = (salon) => {
               setUserType={setUserType}
             />
           )
+        case "welcome":
+          return <WelcomePage setCurrentView={setCurrentView} />
         default:
           // 👇 Default to WelcomePage
-          return <RegisterForm setCurrentView={setCurrentView} />
+          return <WelcomePage setCurrentView={setCurrentView} />
       }
     }
 

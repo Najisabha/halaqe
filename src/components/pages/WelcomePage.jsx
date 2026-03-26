@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Scissors, Brush, Sparkles, Calendar, Star, MapPin } from "lucide-react";
 
@@ -31,22 +31,93 @@ const styles = `
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
   }
+  @keyframes barberStripe {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 240px; }
+  }
+  @keyframes floatBlob {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(12px,-10px,0) scale(1.06); }
+    100% { transform: translate3d(0,0,0) scale(1); }
+  }
   .bg-barber-animated {
     animation: bgZoom 10s ease-in-out infinite;
     background-size: cover;
     background-position: center;
     will-change: transform;
   }
+  .hero-blob {
+    filter: blur(28px);
+    animation: floatBlob 9s ease-in-out infinite;
+    will-change: transform;
+  }
+  .noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    opacity: .28;
+    pointer-events: none;
+  }
+  .barber-pole {
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,.92) 0%,
+      rgba(255,255,255,.92) 20%,
+      rgba(56,189,248,.95) 20%,
+      rgba(56,189,248,.95) 40%,
+      rgba(255,255,255,.92) 40%,
+      rgba(255,255,255,.92) 60%,
+      rgba(59,130,246,.95) 60%,
+      rgba(59,130,246,.95) 80%,
+      rgba(255,255,255,.92) 80%,
+      rgba(255,255,255,.92) 100%
+    );
+    background-size: 100% 240px;
+    animation: barberStripe 2.2s linear infinite;
+  }
+  .wave-divider {
+    height: 64px;
+    width: 100%;
+    display: block;
+  }
   @media (prefers-reduced-motion) {
     .bg-barber-animated { animation: none; }
+    .hero-blob { animation: none; }
+    .barber-pole { animation: none; }
   }
 `;
 
-const WelcomePage = () => {
+const BarberPole = ({ shouldReduceMotion }) => {
+  return (
+    <div className="relative mx-auto h-[320px] w-[160px] sm:h-[360px] sm:w-[180px]">
+      <div className="absolute inset-x-0 top-0 h-8 rounded-full bg-gradient-to-b from-slate-100 to-slate-300 shadow-lg" />
+      <div className="absolute inset-x-4 top-6 bottom-10 rounded-3xl border border-white/30 bg-white/10 backdrop-blur-md shadow-2xl">
+        <div className="absolute inset-2 rounded-2xl barber-pole" />
+        <div className="absolute inset-2 rounded-2xl ring-1 ring-white/25" />
+        {!shouldReduceMotion && (
+          <div className="absolute -inset-6 rounded-[42px] bg-[radial-gradient(circle_at_30%_20%,rgba(56,189,248,.35),transparent_60%),radial-gradient(circle_at_70%_80%,rgba(59,130,246,.25),transparent_60%)] blur-2xl" />
+        )}
+      </div>
+      <div className="absolute inset-x-0 bottom-0 h-10 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 shadow-lg" />
+      <div className="absolute -left-4 top-10 h-10 w-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md" />
+      <div className="absolute -right-4 bottom-16 h-12 w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md" />
+    </div>
+  );
+};
+
+const WelcomePage = ({ setCurrentView }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [activeFeature, setActiveFeature] = useState(null);
   const [scrollY, setScrollY] = useState(0);
   const shouldReduceMotion = useReducedMotion();
+
+  const sparklePositions = useMemo(
+    () => [
+      { top: "28%", left: "32%" },
+      { top: "44%", left: "62%" },
+      { top: "62%", left: "42%" },
+    ],
+    []
+  );
 
   // Parallax effect
   useEffect(() => {
@@ -142,68 +213,148 @@ const WelcomePage = () => {
           role="region"
           aria-label="Hero Section"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/30"></div>
-          <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-5xl mx-auto">
-            <motion.div className="absolute top-10 left-4 sm:left-12 lg:left-20" variants={scissorsVariants} initial="initial" animate="animate">
-              <Scissors className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-300 drop-shadow-md" />
-            </motion.div>
-            <motion.div className="absolute top-14 right-4 sm:right-12 lg:right-20" variants={brushVariants} initial="initial" animate="animate">
-              <Brush className="w-8 h-8 sm:w-10 sm:h-10 text-slate-300 drop-shadow-md" />
-            </motion.div>
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute"
-                style={{ top: `${Math.random() * 50 + 20}%`, left: `${Math.random() * 50 + 25}%` }}
-                variants={sparklesVariants}
-                initial="initial"
-                animate="animate"
-              >
-                <Sparkles className="w-3 h-3 text-indigo-200 opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-sky-950/80 via-slate-950/55 to-sky-900/30"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_25%,rgba(56,189,248,0.35),transparent_55%),radial-gradient(circle_at_70%_65%,rgba(59,130,246,0.25),transparent_60%)]" />
+          <div className="absolute inset-0 noise-overlay" />
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="hero-blob absolute -top-24 -left-24 h-72 w-72 rounded-full bg-sky-400/40" />
+            <div className="hero-blob absolute top-16 -right-24 h-80 w-80 rounded-full bg-blue-500/30 [animation-delay:1200ms]" />
+            <div className="hero-blob absolute -bottom-24 left-1/3 h-96 w-96 rounded-full bg-cyan-300/20 [animation-delay:600ms]" />
+          </div>
+          <div className="relative z-10 w-full px-4 sm:px-6 max-w-6xl mx-auto">
+            <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-sky-100/30 bg-white/10 px-4 py-2 text-sm text-sky-50 backdrop-blur-md shadow-sm">
+              <span className="h-2 w-2 rounded-full bg-sky-300" />
+              تجربة حجز حديثة للحلاقة والصالونات
+            </div>
+            <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              <motion.div className="absolute -top-4 left-2 sm:left-10" variants={scissorsVariants} initial="initial" animate="animate">
+                <Scissors className="w-8 h-8 sm:w-10 sm:h-10 text-sky-200 drop-shadow-md" />
               </motion.div>
-            ))}
-            <motion.h1
-              className="text-4xl sm:text-5xl lg:text-7xl font-extrabold mb-4 sm:mb-6 tracking-tight leading-tight drop-shadow-lg"
-              variants={heroTextVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              Halaqe
-            </motion.h1>
-            <motion.p
-              className="text-lg sm:text-xl lg:text-2xl mb-8 sm:mb-10 font-light max-w-3xl mx-auto text-gray-100"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
-            >
-              Book your perfect barber cut across top salons with ease!
-            </motion.p>
-            <motion.button
-              className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-indigo-400 to-slate-500 text-white text-lg sm:text-xl font-semibold rounded-full shadow-lg"
-              variants={buttonVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
-              onClick={() => scrollToSection("features")}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              aria-label="Start Booking Now"
-            >
-              Start Booking
-              <AnimatePresence>
-                {isHovered && (
-                  <motion.span
-                    className="inline-block ml-2"
-                    initial={{ x: -5, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: 5, opacity: 0 }}
-                    transition={{ duration: 0.1 }}
+              <motion.div className="absolute -top-2 right-2 sm:right-10" variants={brushVariants} initial="initial" animate="animate">
+                <Brush className="w-8 h-8 sm:w-10 sm:h-10 text-sky-100/90 drop-shadow-md" />
+              </motion.div>
+              {sparklePositions.map((pos, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute"
+                  style={pos}
+                  variants={sparklesVariants}
+                  initial="initial"
+                  animate="animate"
+                >
+                  <Sparkles className="w-3 h-3 text-sky-200 opacity-60" />
+                </motion.div>
+              ))}
+
+              <div className="lg:col-span-7 text-white text-center lg:text-right">
+                <motion.h1
+                  className="text-4xl sm:text-5xl lg:text-7xl font-extrabold mb-4 sm:mb-6 tracking-tight leading-tight drop-shadow-lg"
+                  variants={heroTextVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <span className="bg-gradient-to-l from-sky-200 via-white to-sky-300 bg-clip-text text-transparent">
+                    Halaqe
+                  </span>
+                </motion.h1>
+                <motion.p
+                  className="text-lg sm:text-xl lg:text-2xl mb-7 sm:mb-8 font-light max-w-3xl mx-auto lg:mx-0 text-sky-50/95"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                >
+                  احجز موعدك مع أفضل الحلاقين والصالونات بسهولة—بتجربة فاخرة ومريحة.
+                </motion.p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center lg:items-start">
+                  <motion.button
+                    className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-sky-400 via-sky-500 to-blue-500 text-white text-lg sm:text-xl font-semibold rounded-full shadow-lg"
+                    variants={buttonVariants}
+                    initial="initial"
+                    whileHover="hover"
+                    whileTap="tap"
+                    onClick={() => setCurrentView("register")}
+                    aria-label="Sign Up Now"
                   >
-                    ✂️
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
+                    إنشاء حساب
+                  </motion.button>
+                  <motion.button
+                    className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md border border-sky-100/40 text-white text-lg sm:text-xl font-semibold rounded-full shadow-lg"
+                    variants={buttonVariants}
+                    initial="initial"
+                    whileHover="hover"
+                    whileTap="tap"
+                    onClick={() => setCurrentView("login")}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    aria-label="Login Now"
+                  >
+                    تسجيل دخول
+                    <AnimatePresence>
+                      {isHovered && (
+                        <motion.span
+                          className="inline-block ml-2"
+                          initial={{ x: -5, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          exit={{ x: 5, opacity: 0 }}
+                          transition={{ duration: 0.1 }}
+                        >
+                          ✂️
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                </div>
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {[
+                    { k: "+500", v: "حلاق/صالون" },
+                    { k: "24/7", v: "حجز متاح" },
+                    { k: "4.8", v: "متوسط التقييم" },
+                  ].map((s) => (
+                    <div key={s.v} className="rounded-2xl border border-white/10 bg-white/10 px-5 py-4 backdrop-blur-md">
+                      <div className="text-2xl font-bold text-white">{s.k}</div>
+                      <div className="text-sm text-sky-50/80">{s.v}</div>
+                    </div>
+                  ))}
+                </div>
+                <motion.button
+                  className="mt-4 text-white/80 hover:text-white underline text-base sm:text-lg"
+                  onClick={() => scrollToSection("features")}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4, duration: 0.4 }}
+                >
+                  اكتشف المزيد
+                </motion.button>
+              </div>
+
+              <div className="lg:col-span-5">
+                <div className="relative mx-auto max-w-md rounded-3xl border border-white/15 bg-white/10 p-6 sm:p-7 backdrop-blur-xl shadow-2xl">
+                  <div className="absolute -top-6 left-6 rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-sky-50 backdrop-blur-md">
+                    خطوات سريعة للحجز
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 mt-6">
+                    {[
+                      { title: "اختر الخدمة", desc: "قصة شعر، عناية، أو صالون قريب.", icon: <Scissors className="h-5 w-5" /> },
+                      { title: "حدد الوقت", desc: "شوف المواعيد المتاحة فورًا.", icon: <Calendar className="h-5 w-5" /> },
+                      { title: "استمتع بالتجربة", desc: "تأكيد سريع وتجربة مرتبة.", icon: <Sparkles className="h-5 w-5" /> },
+                    ].map((step) => (
+                      <div key={step.title} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/10 p-4">
+                        <div className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400/30 to-blue-500/30 text-sky-50 ring-1 ring-white/20">
+                          {step.icon}
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-white">{step.title}</div>
+                          <div className="text-sm text-sky-50/80">{step.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6">
+                    <BarberPole shouldReduceMotion={shouldReduceMotion} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </motion.section>
 
@@ -216,7 +367,8 @@ const WelcomePage = () => {
           role="region"
           aria-label="Features Section"
         >
-          <div className="absolute inset-0 bg-gray-900/75"></div>
+          <div className="absolute inset-0 bg-slate-950/70"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(125,211,252,0.25),transparent_55%),radial-gradient(circle_at_80%_60%,rgba(147,197,253,0.18),transparent_60%)]" />
           <motion.h2
             className="relative text-3xl sm:text-4xl lg:text-5xl font-bold text-center text-white mb-12 sm:mb-16 drop-shadow-md"
             initial={{ opacity: 0 }}
@@ -224,26 +376,26 @@ const WelcomePage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.3 }}
           >
-            Why Halaqe?
+            لماذا Halaqe؟
           </motion.h2>
           <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {[
               {
-                title: "Top Barbers",
-                description: "Discover skilled barbers for the perfect cut.",
-                icon: <Scissors className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-300" />,
+                title: "أفضل الحلاقين",
+                description: "اكتشف محترفين يقدمون لك القصة المثالية.",
+                icon: <Scissors className="w-10 h-10 sm:w-12 sm:h-12 text-sky-200" />,
                 image: featureImages.barbers,
               },
               {
-                title: "Multiple Salons",
-                description: "Choose from premium barber shops near you.",
-                icon: <MapPin className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300" />,
+                title: "صالات متعددة",
+                description: "اختر من صالونات مميزة بالقرب منك.",
+                icon: <MapPin className="w-10 h-10 sm:w-12 sm:h-12 text-sky-100/90" />,
                 image: featureImages.salons,
               },
               {
-                title: "Seamless Booking",
-                description: "Book effortlessly anytime, anywhere.",
-                icon: <Calendar className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-300" />,
+                title: "حجز سلس",
+                description: "احجز بسهولة في أي وقت ومن أي مكان.",
+                icon: <Calendar className="w-10 h-10 sm:w-12 sm:h-12 text-sky-200" />,
                 image: featureImages.booking,
               },
             ].map((feature, index) => (
@@ -299,13 +451,13 @@ const WelcomePage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.3 }}
             >
-              What Our Users Say
+              آراء المستخدمين
             </motion.h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {[
-                { name: "Alex J.", quote: "Best barber booking platform!", rating: 5, avatar: testimonialAvatars[0] },
-                { name: "Sarah L.", quote: "So many great salons to choose from.", rating: 5, avatar: testimonialAvatars[1] },
-                { name: "Mike D.", quote: "Booking is super easy and fast.", rating: 4, avatar: testimonialAvatars[2] },
+                { name: "أحمد", quote: "تجربة حجز ممتازة وسريعة.", rating: 5, avatar: testimonialAvatars[0] },
+                { name: "سارة", quote: "خيارات كثيرة لصالونات قريبة.", rating: 5, avatar: testimonialAvatars[1] },
+                { name: "محمد", quote: "واجهة جميلة وتفاصيل واضحة.", rating: 4, avatar: testimonialAvatars[2] },
               ].map((testimonial, index) => (
                 <motion.div
                   key={index}
@@ -326,7 +478,7 @@ const WelcomePage = () => {
                   />
                   <div className="flex justify-center mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-indigo-300 fill-current" />
+                      <Star key={i} className="w-5 h-5 text-sky-200 fill-current" />
                     ))}
                   </div>
                   <p className="text-gray-200 text-base sm:text-lg mb-4 italic">"{testimonial.quote}"</p>
@@ -346,7 +498,7 @@ const WelcomePage = () => {
           role="region"
           aria-label="Call to Action Section"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/70 to-slate-600/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-sky-500/70 via-blue-500/60 to-sky-700/70"></div>
           <div className="relative container mx-auto px-4 sm:px-6 text-center">
             <motion.h2
               className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-8 text-white drop-shadow-md"
@@ -355,7 +507,7 @@ const WelcomePage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.3 }}
             >
-              Ready for Your Next Cut?
+              جاهز لموعدك القادم؟
             </motion.h2>
             <motion.p
               className="text-lg sm:text-xl mb-8 sm:mb-10 max-w-2xl mx-auto text-gray-100"
@@ -364,25 +516,39 @@ const WelcomePage = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.1, duration: 0.3 }}
             >
-              Book your barber appointment now with Halaqe.
+              احجز الآن مع Halaqe واستمتع بتجربة أنيقة وسهلة.
             </motion.p>
-            <motion.button
-              className="px-6 py-3 sm:px-8 sm:py-4 bg-white text-indigo-600 text-lg sm:text-xl font-semibold rounded-full shadow-lg"
-              variants={buttonVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
-              aria-label="Book Appointment Now"
-            >
-              Book Now
-              <motion.span
-                className="inline-block ml-2"
-                animate={shouldReduceMotion ? { rotate: 0 } : { rotate: [0, 360] }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <motion.button
+                className="px-6 py-3 sm:px-8 sm:py-4 bg-white text-sky-700 text-lg sm:text-xl font-semibold rounded-full shadow-lg"
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                onClick={() => setCurrentView("register")}
+                aria-label="Book Appointment Now"
               >
-                ✨
-              </motion.span>
-            </motion.button>
+                ابدأ الآن
+                <motion.span
+                  className="inline-block ml-2"
+                  animate={shouldReduceMotion ? { rotate: 0 } : { rotate: [0, 360] }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                >
+                  ✨
+                </motion.span>
+              </motion.button>
+              <motion.button
+                className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md border border-sky-100/40 text-white text-lg sm:text-xl font-semibold rounded-full shadow-lg"
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                onClick={() => setCurrentView("login")}
+                aria-label="Login"
+              >
+                تسجيل دخول
+              </motion.button>
+            </div>
           </div>
         </motion.section>
       </motion.div>

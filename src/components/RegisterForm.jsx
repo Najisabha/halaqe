@@ -282,13 +282,22 @@ function RegisterForm({ setCurrentView }) {
         transition={{ duration: 0.5 }}
         className="max-w-md mx-auto bg-card p-8 rounded-lg shadow-lg"
       >
-        <button
-          onClick={() => setCurrentView('login')}
-          className="flex items-center text-primary hover:underline mb-6"
-        >
-          <ArrowRight className="h-4 w-4 ml-2" />
-          العودة لتسجيل الدخول
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setCurrentView('welcome')}
+            className="flex items-center text-primary hover:underline"
+          >
+            <ArrowRight className="h-4 w-4 ml-2 rotate-180" />
+            الصفحة الرئيسية
+          </button>
+          <button
+            onClick={() => setCurrentView('login')}
+            className="flex items-center text-primary hover:underline"
+          >
+            تسجيل الدخول
+            <ArrowRight className="h-4 w-4 mr-2" />
+          </button>
+        </div>
 
         <h2 className="text-2xl font-bold mb-6 text-center">إنشاء حساب جديد</h2>
 

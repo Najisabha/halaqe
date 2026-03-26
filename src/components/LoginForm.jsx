@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
 import { motion } from "framer-motion";
-import { Facebook, Apple } from "lucide-react";
+import { Facebook, Apple, ArrowRight } from "lucide-react";
 
 function LoginForm({ setCurrentView, setIsLoggedIn, setUserType, setCurrentUser }) {
   const { toast } = useToast();
@@ -132,6 +132,13 @@ function LoginForm({ setCurrentView, setIsLoggedIn, setUserType, setCurrentUser 
         transition={{ duration: 0.5 }}
         className="max-w-md mx-auto bg-card p-8 rounded-lg shadow-lg"
       >
+        <button
+          onClick={() => setCurrentView('welcome')}
+          className="flex items-center text-primary hover:underline mb-6"
+        >
+          <ArrowRight className="h-4 w-4 ml-2 rotate-180" />
+          العودة للصفحة الرئيسية
+        </button>
         <h2 className="text-2xl font-bold mb-6 text-center">تسجيل الدخول</h2>
 
         {/* Social Login */}
