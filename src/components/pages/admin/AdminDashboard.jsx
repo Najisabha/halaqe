@@ -9,9 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../compo
 
 // 🔗 API wrapper
 async function apiFetch(url, { method = "GET", body } = {}) {
-  const api = import.meta.env.VITE_API_URL;
+  const apiBase = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/+$/, "");
 
-    const res = await fetch(`${api}${url}`, {
+  const res = await fetch(`${apiBase}${url}`, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -30,13 +30,20 @@ async function apiFetch(url, { method = "GET", body } = {}) {
   if (!res.ok) {
     let errorMessage = "حدث خطأ أثناء الاتصال بالخادم"
     try {
-      const errorData = await res.json()
+      const raw = await res.text()
+      const errorData = raw ? JSON.parse(raw) : {}
       errorMessage = errorData.message || errorMessage
     } catch (_) {}
     throw new Error(errorMessage)
   }
 
-  return res.json()
+  const raw = await res.text()
+  if (!raw) return {}
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return { message: raw }
+  }
 }
 
 // 📅 Helper to format dates

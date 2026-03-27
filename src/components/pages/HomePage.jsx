@@ -270,9 +270,9 @@ const CutModal = ({ cuts, currentIndex, onClose }) => {
 // ───────── API Helper
 const api = async (url, method = "GET", body, toast, setIsLoggedIn, setCurrentView, t) => {
   try {
-    const api = import.meta.env.VITE_API_URL;
+    const apiBase = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/+$/, "");
 
-    const res = await fetch(`${api}${url}`, {
+    const res = await fetch(`${apiBase}${url}`, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -284,8 +284,21 @@ const api = async (url, method = "GET", body, toast, setIsLoggedIn, setCurrentVi
       handleUnauthorized(setIsLoggedIn, setCurrentView, toast, t);
       return null;
     }
-    if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
-    return res.json();
+
+    const raw = await res.text();
+    let data = {};
+    if (raw) {
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        data = { message: raw };
+      }
+    }
+
+    if (!res.ok) {
+      throw new Error(data.message || `API Error: ${res.status} ${res.statusText}`);
+    }
+    return data;
   } catch (error) {
     return null;
   }

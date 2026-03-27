@@ -101,16 +101,31 @@ function LoginForm({ setCurrentView, setIsLoggedIn, setUserType, setCurrentUser 
     setLoading(true);
 
     try {
-      const api = import.meta.env.VITE_API_URL;
+      const apiBase = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/+$/, "");
 
-      const res = await fetch(`${api}/api/auth/login`, {
+      const res = await fetch(`${apiBase}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "فشل تسجيل الدخول");
+      const raw = await res.text();
+      let data = {};
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          data = { message: raw };
+        }
+      }
+
+      if (!res.ok) {
+        const validationMsg =
+          Array.isArray(data?.errors) && data.errors.length > 0
+            ? data.errors[0]?.msg || data.errors[0]?.message
+            : null;
+        throw new Error(validationMsg || data.message || `فشل تسجيل الدخول (${res.status})`);
+      }
 
       handleLoginSuccess(data);
     } catch (err) {

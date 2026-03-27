@@ -9,10 +9,7 @@ function ForgotPassword({ setCurrentView }) {
   const [method, setMethod] = useState("email")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-  const [step, setStep] = useState(1)
-  const [verificationCode, setVerificationCode] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [step, setStep] = useState(1) // 1: choose method, 2: submit, 3: sent
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -20,7 +17,7 @@ function ForgotPassword({ setCurrentView }) {
     setLoading(true)
 
     try {
-      if (step === 2) {
+      if (step === 2 && method === "email") {
         const api = import.meta.env.VITE_API_URL;
 
         const res = await fetch(`${api}/api/auth/forgot-password`, {
@@ -30,56 +27,18 @@ function ForgotPassword({ setCurrentView }) {
         })
         if (res.ok) {
           toast({
-            title: "تم إرسال رمز التحقق",
-            description:
-              method === "email"
-                ? "تم إرسال رمز التحقق إلى بريدك الإلكتروني"
-                : "تم إرسال رمز التحقق إلى رقم جوالك",
+            title: "تم إرسال رابط إعادة التعيين",
+            description: "تحقق من بريدك الإلكتروني واضغط على رابط إعادة تعيين كلمة المرور",
           })
           setStep(3)
         } else {
           toast({ title: "خطأ", description: "تعذر إرسال الرمز" })
         }
-      }
-
-      if (step === 3) {
-        const api = import.meta.env.VITE_API_URL;
-
-        const res = await fetch(`${api}/api/auth/verify-reset-otp`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, code: verificationCode }),
+      } else if (step === 2 && method !== "email") {
+        toast({
+          title: "غير مدعوم حالياً",
+          description: "استعادة كلمة المرور عبر الهاتف غير مفعّلة حالياً. استخدم البريد الإلكتروني.",
         })
-        if (res.ok) {
-          toast({ title: "تم التحقق", description: "يمكنك الآن إدخال كلمة مرور جديدة" })
-          setStep(4)
-        } else {
-          toast({ title: "خطأ", description: "رمز التحقق غير صحيح أو منتهي" })
-        }
-      }
-
-      if (step === 4) {
-        if (newPassword !== confirmPassword) {
-          toast({ title: "كلمة المرور غير متطابقة", description: "يرجى إعادة المحاولة" })
-          return
-        }
-        const api = import.meta.env.VITE_API_URL;
-
-        const res = await fetch(`${api}/api/auth/reset-password`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, code: verificationCode, newPassword }),
-        })
-
-        if (res.ok) {
-          toast({
-            title: "تم إعادة تعيين كلمة المرور",
-            description: "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة",
-          })
-          setCurrentView("login")
-        } else {
-          toast({ title: "خطأ", description: "تعذر إعادة تعيين كلمة المرور" })
-        }
       }
     } finally {
       setLoading(false)
@@ -149,55 +108,23 @@ function ForgotPassword({ setCurrentView }) {
               </div>
             )}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "جاري الإرسال..." : "إرسال رمز التحقق"}
+              {loading ? "جاري الإرسال..." : "إرسال رابط إعادة التعيين"}
             </Button>
           </form>
         )}
 
         {step === 3 && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block mb-2">رمز التحقق</label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded-md"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "جارٍ التحقق..." : "تأكيد الرمز"}
+          <div className="space-y-4 text-center">
+            <p className="text-gray-700">
+              تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.
+            </p>
+            <p className="text-sm text-gray-500">
+              إذا لم تجد الرسالة، تحقق من “Spam/Junk”.
+            </p>
+            <Button className="w-full" onClick={() => setCurrentView("login")}>
+              العودة لتسجيل الدخول
             </Button>
-          </form>
-        )}
-
-        {step === 4 && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block mb-2">كلمة المرور الجديدة</label>
-              <input
-                type="password"
-                className="w-full p-2 border rounded-md"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-2">تأكيد كلمة المرور</label>
-              <input
-                type="password"
-                className="w-full p-2 border rounded-md"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "جاري إعادة التعيين..." : "إعادة تعيين كلمة المرور"}
-            </Button>
-          </form>
+          </div>
         )}
       </motion.div>
     </div>
