@@ -57,6 +57,9 @@ npm run dev
 # في المجلد الرئيسي
 npm install
 
+# إعداد متغيرات Vite (في جذر المشروع)
+cp .env.example .env
+
 # تشغيل Frontend
 npm run dev
 ```

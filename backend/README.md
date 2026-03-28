@@ -202,7 +202,7 @@ Error: listen EADDRINUSE: address already in use :::4000
 
 ## 🔄 تحديث Frontend
 
-عدّل ملف `.env` في مجلد `src`:
+أنشئ/عدّل ملف `.env` (أو `.env.local`) في **جذر المشروع**:
 ```env
 VITE_API_URL=http://localhost:4000
 ```

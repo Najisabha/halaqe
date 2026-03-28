@@ -11,9 +11,9 @@ import Swal from "sweetalert2";
 
 // API helper
 async function apiFetch(url, { method = "GET", body } = {}) {
-    const api = import.meta.env.VITE_API_URL;
+  const apiBase = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/+$/, "");
 
-    const res = await fetch(`${api}${url}`, {
+  const res = await fetch(`${apiBase}${url}`, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -22,9 +22,22 @@ async function apiFetch(url, { method = "GET", body } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   });
 
+  const contentType = res.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
+
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "حدث خطأ في الاتصال بالخادم");
+    const errorData = isJson ? await res.json().catch(() => ({})) : {};
+    throw new Error(
+      errorData.message ||
+        (isJson ? "حدث خطأ في الاتصال بالخادم" : "الخادم أرجع ردًا غير متوقع (ليس JSON). تأكد من VITE_API_URL وتشغيل الـ Backend.")
+    );
+  }
+
+  if (!isJson) {
+    const text = await res.text().catch(() => "");
+    throw new Error(
+      `الخادم أرجع ردًا غير JSON. غالبًا VITE_API_URL غير مضبوط أو يشير لعنوان خاطئ. (أول جزء من الرد: ${text.slice(0, 60)})`
+    );
   }
 
   return res.json();

@@ -4,6 +4,29 @@ import { User, Notification } from '../models/index.js';
 
 const router = express.Router();
 
+const toClientNotification = (n) => {
+  const plain = n.toJSON ? n.toJSON() : n;
+  const type = String(plain.type || '').toUpperCase();
+  const mappedType =
+    type === 'APPOINTMENT' ? 'appointment' :
+    type === 'REVIEW' ? 'rating' :
+    type === 'SYSTEM' ? 'info' :
+    type === 'PROMOTION' ? 'info' :
+    type === 'PAYMENT' ? 'payment' :
+    'info';
+
+  return {
+    id: plain.id,
+    userId: plain.userId,
+    title: plain.title,
+    message: plain.message,
+    type: mappedType,
+    read: Boolean(plain.isRead),
+    createdAt: plain.createdAt,
+    actionUrl: plain.actionUrl ?? null
+  };
+};
+
 // Get user navbar data
 router.get('/navbar', authenticate, async (req, res) => {
   try {
@@ -29,6 +52,61 @@ router.get('/navbar', authenticate, async (req, res) => {
       success: false,
       message: 'خطأ في جلب البيانات'
     });
+  }
+});
+
+// Get user notifications
+router.get('/notifications', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const notifications = await Notification.findAll({
+      where: { userId },
+      order: [['createdAt', 'DESC']]
+    });
+    return res.json(notifications.map(toClientNotification));
+  } catch (error) {
+    console.error('Notifications error:', error);
+    return res.status(500).json({ message: 'خطأ في تحميل الإشعارات' });
+  }
+});
+
+// Mark a notification as read
+router.put('/notifications/:id/read', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const notification = await Notification.findOne({ where: { id, userId } });
+    if (!notification) {
+      return res.status(404).json({ message: 'الإشعار غير موجود' });
+    }
+
+    if (!notification.isRead) {
+      notification.isRead = true;
+      notification.readAt = new Date();
+      await notification.save();
+    }
+
+    return res.json(toClientNotification(notification));
+  } catch (error) {
+    console.error('Mark notification read error:', error);
+    return res.status(500).json({ message: 'فشل تحديث الإشعار' });
+  }
+});
+
+// Mark all notifications as read
+router.put('/notifications/read-all', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const now = new Date();
+    await Notification.update(
+      { isRead: true, readAt: now },
+      { where: { userId, isRead: false } }
+    );
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Mark all notifications read error:', error);
+    return res.status(500).json({ message: 'فشل تحديث الإشعارات' });
   }
 });
 

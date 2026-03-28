@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
-import { User, Barber } from '../models/index.js';
+import { User, Barber, Notification } from '../models/index.js';
 
 const router = express.Router();
 
@@ -74,6 +74,82 @@ router.delete('/users-barbers/:id', authenticate, authorize('ADMIN'), async (req
 
   await user.destroy();
   return res.json({ success: true, message: 'تم الحذف بنجاح' });
+});
+
+const toClientNotification = (n) => {
+  const plain = n.toJSON ? n.toJSON() : n;
+  const type = String(plain.type || '').toUpperCase();
+  const mappedType =
+    type === 'APPOINTMENT' ? 'appointment' :
+    type === 'REVIEW' ? 'rating' :
+    type === 'SYSTEM' ? 'info' :
+    type === 'PROMOTION' ? 'info' :
+    type === 'PAYMENT' ? 'payment' :
+    'info';
+
+  return {
+    id: plain.id,
+    userId: plain.userId,
+    title: plain.title,
+    message: plain.message,
+    type: mappedType,
+    read: Boolean(plain.isRead),
+    createdAt: plain.createdAt,
+    actionUrl: plain.actionUrl ?? null
+  };
+};
+
+// Admin: get own notifications (same schema as user)
+router.get('/notifications', authenticate, authorize('ADMIN'), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const notifications = await Notification.findAll({
+      where: { userId },
+      order: [['createdAt', 'DESC']]
+    });
+    return res.json(notifications.map(toClientNotification));
+  } catch (error) {
+    console.error('Admin notifications error:', error);
+    return res.status(500).json({ message: 'خطأ في تحميل الإشعارات' });
+  }
+});
+
+router.put('/notifications/:id/read', authenticate, authorize('ADMIN'), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const notification = await Notification.findOne({ where: { id, userId } });
+    if (!notification) {
+      return res.status(404).json({ message: 'الإشعار غير موجود' });
+    }
+
+    if (!notification.isRead) {
+      notification.isRead = true;
+      notification.readAt = new Date();
+      await notification.save();
+    }
+
+    return res.json(toClientNotification(notification));
+  } catch (error) {
+    console.error('Admin mark notification read error:', error);
+    return res.status(500).json({ message: 'فشل تحديث الإشعار' });
+  }
+});
+
+router.put('/notifications/read-all', authenticate, authorize('ADMIN'), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const now = new Date();
+    await Notification.update(
+      { isRead: true, readAt: now },
+      { where: { userId, isRead: false } }
+    );
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Admin mark all notifications read error:', error);
+    return res.status(500).json({ message: 'فشل تحديث الإشعارات' });
+  }
 });
 
 export default router;

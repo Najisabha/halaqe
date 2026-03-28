@@ -125,7 +125,7 @@ DB_PASSWORD=كلمة_المرور_الصحيحة
 ### ❌ Frontend لا يتصل بـ Backend
 
 ```bash
-# تأكد من ملف src/.env يحتوي:
+# تأكد من وجود ملف `.env` (أو `.env.local`) في **جذر المشروع** يحتوي:
 VITE_API_URL=http://localhost:4000
 ```
 
