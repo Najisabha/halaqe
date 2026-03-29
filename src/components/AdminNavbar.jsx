@@ -28,6 +28,7 @@ function AdminNavbar({ currentView, setCurrentView, setIsLoggedIn }) {
     { icon: Briefcase, view: "providers", label: "الوكلاء" },
 
     
+    
   ]
 
   const handleViewChange = (view) => {
