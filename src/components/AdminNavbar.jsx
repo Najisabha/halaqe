@@ -27,8 +27,8 @@ function AdminNavbar({ currentView, setCurrentView, setIsLoggedIn }) {
     { icon: TicketIcon, view: "promtionsAdmin", label: "المحفظة" },
     { icon: Briefcase, view: "providers", label: "الوكلاء" },
 
-    
-    
+
+  
   ]
 
   const handleViewChange = (view) => {
