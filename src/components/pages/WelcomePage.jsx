@@ -208,7 +208,7 @@ const WelcomePage = ({ setCurrentView }) => {
         <motion.section
           id="hero"
           variants={sectionVariants}
-          className="relative h-screen flex items-center justify-center bg-barber-animated"
+          className="relative min-h-screen flex items-center justify-center bg-barber-animated py-16 sm:py-0"
           style={{ backgroundImage: `url(${backgroundImages.hero})`, backgroundPositionY: `${scrollY * 0.2}px` }}
           role="region"
           aria-label="Hero Section"
@@ -222,11 +222,11 @@ const WelcomePage = ({ setCurrentView }) => {
             <div className="hero-blob absolute -bottom-24 left-1/3 h-96 w-96 rounded-full bg-cyan-300/20 [animation-delay:600ms]" />
           </div>
           <div className="relative z-10 w-full px-4 sm:px-6 max-w-6xl mx-auto">
-            <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-sky-100/30 bg-white/10 px-4 py-2 text-sm text-sky-50 backdrop-blur-md shadow-sm">
+            <div className="mx-auto mb-4 sm:mb-6 inline-flex items-center gap-2 rounded-full border border-sky-100/30 bg-white/10 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-sky-50 backdrop-blur-md shadow-sm">
               <span className="h-2 w-2 rounded-full bg-sky-300" />
               تجربة حجز حديثة للحلاقة والصالونات
             </div>
-            <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-center">
               <motion.div className="absolute -top-4 left-2 sm:left-10" variants={scissorsVariants} initial="initial" animate="animate">
                 <Scissors className="w-8 h-8 sm:w-10 sm:h-10 text-sky-200 drop-shadow-md" />
               </motion.div>
@@ -248,7 +248,7 @@ const WelcomePage = ({ setCurrentView }) => {
 
               <div className="lg:col-span-7 text-white text-center lg:text-right">
                 <motion.h1
-                  className="text-4xl sm:text-5xl lg:text-7xl font-extrabold mb-4 sm:mb-6 tracking-tight leading-tight drop-shadow-lg"
+                  className="text-3xl sm:text-5xl lg:text-7xl font-extrabold mb-3 sm:mb-6 tracking-tight leading-tight drop-shadow-lg"
                   variants={heroTextVariants}
                   initial="hidden"
                   animate="visible"
@@ -258,16 +258,16 @@ const WelcomePage = ({ setCurrentView }) => {
                   </span>
                 </motion.h1>
                 <motion.p
-                  className="text-lg sm:text-xl lg:text-2xl mb-7 sm:mb-8 font-light max-w-3xl mx-auto lg:mx-0 text-sky-50/95"
+                  className="text-base sm:text-xl lg:text-2xl mb-5 sm:mb-8 font-light max-w-3xl mx-auto lg:mx-0 text-sky-50/95"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.4 }}
                 >
                   احجز موعدك مع أفضل الحلاقين والصالونات بسهولة—بتجربة فاخرة ومريحة.
                 </motion.p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center lg:items-start">
+                <div className="flex flex-row gap-3 sm:gap-4 justify-center lg:justify-start items-center lg:items-start">
                   <motion.button
-                    className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-sky-400 via-sky-500 to-blue-500 text-white text-lg sm:text-xl font-semibold rounded-full shadow-lg"
+                    className="px-5 py-2.5 sm:px-8 sm:py-4 bg-gradient-to-r from-sky-400 via-sky-500 to-blue-500 text-white text-base sm:text-xl font-semibold rounded-full shadow-lg"
                     variants={buttonVariants}
                     initial="initial"
                     whileHover="hover"
@@ -278,7 +278,7 @@ const WelcomePage = ({ setCurrentView }) => {
                     إنشاء حساب
                   </motion.button>
                   <motion.button
-                    className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md border border-sky-100/40 text-white text-lg sm:text-xl font-semibold rounded-full shadow-lg"
+                    className="px-5 py-2.5 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md border border-sky-100/40 text-white text-base sm:text-xl font-semibold rounded-full shadow-lg"
                     variants={buttonVariants}
                     initial="initial"
                     whileHover="hover"
@@ -304,15 +304,15 @@ const WelcomePage = ({ setCurrentView }) => {
                     </AnimatePresence>
                   </motion.button>
                 </div>
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-4">
                   {[
                     { k: "+500", v: "حلاق/صالون" },
                     { k: "24/7", v: "حجز متاح" },
                     { k: "4.8", v: "متوسط التقييم" },
                   ].map((s) => (
-                    <div key={s.v} className="rounded-2xl border border-white/10 bg-white/10 px-5 py-4 backdrop-blur-md">
-                      <div className="text-2xl font-bold text-white">{s.k}</div>
-                      <div className="text-sm text-sky-50/80">{s.v}</div>
+                    <div key={s.v} className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/10 px-3 py-3 sm:px-5 sm:py-4 backdrop-blur-md text-center">
+                      <div className="text-lg sm:text-2xl font-bold text-white">{s.k}</div>
+                      <div className="text-xs sm:text-sm text-sky-50/80">{s.v}</div>
                     </div>
                   ))}
                 </div>
@@ -328,28 +328,28 @@ const WelcomePage = ({ setCurrentView }) => {
               </div>
 
               <div className="lg:col-span-5">
-                <div className="relative mx-auto max-w-md rounded-3xl border border-white/15 bg-white/10 p-6 sm:p-7 backdrop-blur-xl shadow-2xl">
-                  <div className="absolute -top-6 left-6 rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-sky-50 backdrop-blur-md">
+                <div className="relative mx-auto max-w-md rounded-2xl sm:rounded-3xl border border-white/15 bg-white/10 p-4 sm:p-7 backdrop-blur-xl shadow-2xl">
+                  <div className="absolute -top-5 sm:-top-6 left-4 sm:left-6 rounded-xl sm:rounded-2xl border border-white/15 bg-white/10 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-sky-50 backdrop-blur-md">
                     خطوات سريعة للحجز
                   </div>
-                  <div className="grid grid-cols-1 gap-4 mt-6">
+                  <div className="grid grid-cols-1 gap-3 sm:gap-4 mt-4 sm:mt-6">
                     {[
-                      { title: "اختر الخدمة", desc: "قصة شعر، عناية، أو صالون قريب.", icon: <Scissors className="h-5 w-5" /> },
-                      { title: "حدد الوقت", desc: "شوف المواعيد المتاحة فورًا.", icon: <Calendar className="h-5 w-5" /> },
-                      { title: "استمتع بالتجربة", desc: "تأكيد سريع وتجربة مرتبة.", icon: <Sparkles className="h-5 w-5" /> },
+                      { title: "اختر الخدمة", desc: "قصة شعر، عناية، أو صالون قريب.", icon: <Scissors className="h-4 w-4 sm:h-5 sm:w-5" /> },
+                      { title: "حدد الوقت", desc: "شوف المواعيد المتاحة فورًا.", icon: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" /> },
+                      { title: "استمتع بالتجربة", desc: "تأكيد سريع وتجربة مرتبة.", icon: <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" /> },
                     ].map((step) => (
-                      <div key={step.title} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/10 p-4">
-                        <div className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400/30 to-blue-500/30 text-sky-50 ring-1 ring-white/20">
+                      <div key={step.title} className="flex items-center gap-3 rounded-xl sm:rounded-2xl border border-white/10 bg-white/10 p-3 sm:p-4">
+                        <div className="inline-flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br from-sky-400/30 to-blue-500/30 text-sky-50 ring-1 ring-white/20">
                           {step.icon}
                         </div>
-                        <div className="text-right">
-                          <div className="font-semibold text-white">{step.title}</div>
-                          <div className="text-sm text-sky-50/80">{step.desc}</div>
+                        <div className="text-right min-w-0">
+                          <div className="font-semibold text-white text-sm sm:text-base">{step.title}</div>
+                          <div className="text-xs sm:text-sm text-sky-50/80">{step.desc}</div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-6">
+                  <div className="mt-6 hidden sm:block">
                     <BarberPole shouldReduceMotion={shouldReduceMotion} />
                   </div>
                 </div>
