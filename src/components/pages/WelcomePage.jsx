@@ -88,18 +88,18 @@ const styles = `
 
 const BarberPole = ({ shouldReduceMotion }) => {
   return (
-    <div className="relative mx-auto h-[320px] w-[160px] sm:h-[360px] sm:w-[180px]">
-      <div className="absolute inset-x-0 top-0 h-8 rounded-full bg-gradient-to-b from-slate-100 to-slate-300 shadow-lg" />
-      <div className="absolute inset-x-4 top-6 bottom-10 rounded-3xl border border-white/30 bg-white/10 backdrop-blur-md shadow-2xl">
-        <div className="absolute inset-2 rounded-2xl barber-pole" />
-        <div className="absolute inset-2 rounded-2xl ring-1 ring-white/25" />
+    <div className="relative mx-auto h-[220px] w-[110px] sm:h-[360px] sm:w-[180px]">
+      <div className="absolute inset-x-0 top-0 h-6 rounded-full bg-gradient-to-b from-slate-100 to-slate-300 shadow-lg sm:h-8" />
+      <div className="absolute inset-x-3 top-5 bottom-8 rounded-2xl border border-white/30 bg-white/10 backdrop-blur-md shadow-2xl sm:inset-x-4 sm:top-6 sm:bottom-10 sm:rounded-3xl">
+        <div className="absolute inset-1.5 rounded-xl barber-pole sm:inset-2 sm:rounded-2xl" />
+        <div className="absolute inset-1.5 rounded-xl ring-1 ring-white/25 sm:inset-2 sm:rounded-2xl" />
         {!shouldReduceMotion && (
-          <div className="absolute -inset-6 rounded-[42px] bg-[radial-gradient(circle_at_30%_20%,rgba(56,189,248,.35),transparent_60%),radial-gradient(circle_at_70%_80%,rgba(59,130,246,.25),transparent_60%)] blur-2xl" />
+          <div className="absolute -inset-3 rounded-3xl bg-[radial-gradient(circle_at_30%_20%,rgba(56,189,248,.35),transparent_60%),radial-gradient(circle_at_70%_80%,rgba(59,130,246,.25),transparent_60%)] blur-2xl sm:-inset-6 sm:rounded-[42px]" />
         )}
       </div>
-      <div className="absolute inset-x-0 bottom-0 h-10 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 shadow-lg" />
-      <div className="absolute -left-4 top-10 h-10 w-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md" />
-      <div className="absolute -right-4 bottom-16 h-12 w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md" />
+      <div className="absolute inset-x-0 bottom-0 h-8 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 shadow-lg sm:h-10" />
+      <div className="absolute -left-2 top-8 h-7 w-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md sm:-left-4 sm:top-10 sm:h-10 sm:w-10" />
+      <div className="absolute -right-2 bottom-12 h-8 w-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md sm:-right-4 sm:bottom-16 sm:h-12 sm:w-12" />
     </div>
   );
 };
@@ -349,7 +349,7 @@ const WelcomePage = ({ setCurrentView }) => {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-6 hidden sm:block">
+                  <div className="mt-4 flex justify-center sm:mt-6">
                     <BarberPole shouldReduceMotion={shouldReduceMotion} />
                   </div>
                 </div>
